@@ -1,1 +1,32 @@
-.github/workflows/daily_snapshot.yml
+name: Daily SSVI Snapshot
+
+on:
+  schedule:
+    - cron: '30 21 * * 1-5'
+  workflow_dispatch: {}
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install --upgrade yfinance numpy pandas scipy
+
+      - name: Correr snapshot diario
+        run: python daily_snapshot.py --tickers AAPL,TSLA,MSFT --history-dir history
+
+      - name: Guardar cambios en el repo
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add history/
+          git diff --quiet --cached || git commit -m "Snapshot diario $(date -u +%Y-%m-%d)"
+          git push
