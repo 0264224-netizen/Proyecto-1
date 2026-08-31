@@ -29,4 +29,5 @@ jobs:
           git config user.email "github-actions@users.noreply.github.com"
           git add history/
           git diff --quiet --cached || git commit -m "Snapshot diario $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
